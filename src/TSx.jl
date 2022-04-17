@@ -35,7 +35,9 @@ export TS,
     show,
     size,
     rollapply,
-    vcat
+    vcat, 
+    DataFrame, 
+    Date
 
 
 ####################################
@@ -72,7 +74,7 @@ TS(coredata::AbstractArray{T,2}) where {T}
 
 # Examples
 ```jldoctest
-julia> using TSx, DataFrames, Random;
+julia> using TSx, Random;
 
 julia> random(x) = rand(MersenneTwister(123), x);
 
@@ -147,7 +149,7 @@ julia> TS(df, :dates) |> print
    9 │ 2017-01-09  0.26864
   10 │ 2017-01-10  0.108871
 
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 1)
 
 julia> TS(DataFrame(x1=random(10)), dates) |> print
@@ -166,7 +168,7 @@ julia> TS(DataFrame(x1=random(10)), dates) |> print
    9 │ 2017-01-09  0.26864
   10 │ 2017-01-10  0.108871
 
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 1)
 
 julia> TS(random(10)) |> print
@@ -205,7 +207,7 @@ julia> TS(random(10), dates) |> print
    9 │ 2017-01-09  0.26864
   10 │ 2017-01-10  0.108871
 
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 1)
 
 julia> TS([random(10) random(10)], dates) |> print # matrix object
@@ -224,7 +226,7 @@ julia> TS([random(10) random(10)], dates) |> print # matrix object
    9 │ 2017-01-09  0.26864    0.26864
   10 │ 2017-01-10  0.108871   0.108871
 
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 2)
 ```
 """
@@ -371,7 +373,7 @@ the `index()` method on the `TS` object.
 # Examples
 
 ```jldoctest
-julia> using TSx, DataFrames, Random, Dates;
+julia> using TSx, Random, Dates;
 
 julia> random(x) = rand(MersenneTwister(123), x);
 
@@ -451,7 +453,7 @@ julia> ts[Date(2007, 01, 01)] |> print
 ─────┼──────────────────────
    1 │ 2007-01-01  0.768448
 
-Index: {Dates.Date} [1]
+Index: {Date} [1]
 Size: (1, 1)
 
 julia> ts[Date(2007)] |> print
@@ -461,7 +463,7 @@ julia> ts[Date(2007)] |> print
 ─────┼──────────────────────
    1 │ 2007-01-01  0.768448
 
-Index: {Dates.Date} [1]
+Index: {Date} [1]
 Size: (1, 1)
 
 julia> ts[Year(2007)]; 
@@ -477,7 +479,7 @@ julia> ts["2007-01-01"] |> print
 ─────┼──────────────────────
    1 │ 2007-01-01  0.768448
 
-Index: {Dates.Date} [1]
+Index: {Date} [1]
 Size: (1, 1)
 
 julia> ts[1, :x1] |> print
@@ -487,7 +489,7 @@ julia> ts[1, :x1] |> print
 ─────┼──────────────────────
    1 │ 2007-01-01  0.768448
 
-Index: {Dates.Date} [1]
+Index: {Date} [1]
 Size: (1, 1)
 
 julia> ts[1, "x1"] |> print
@@ -497,7 +499,7 @@ julia> ts[1, "x1"] |> print
 ─────┼──────────────────────
    1 │ 2007-01-01  0.768448
 
-Index: {Dates.Date} [1]
+Index: {Date} [1]
 Size: (1, 1)
 ```
 """
@@ -666,7 +668,7 @@ julia> ts |> print
    9 │ 2022-10-01  0.26864
   10 │ 2022-11-01  0.108871
 
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 1)
 
 julia> ts |> TSx.index 
@@ -748,7 +750,7 @@ julia> apply(ts, Month, first) |> print
   14 │ 2018-02-01  0.720163
   15 │ 2018-03-01  0.87459
 
-Index: {Dates.Date} [15]
+Index: {Date} [15]
 Size: (15, 1)
 
 julia> apply(ts, Month(2), first) |> print # alternate months
@@ -765,7 +767,7 @@ julia> apply(ts, Month(2), first) |> print # alternate months
    7 │ 2018-01-01  0.0409471
    8 │ 2018-03-01  0.87459
 
-Index: {Dates.Date} [8]
+Index: {Date} [8]
 Size: (8, 1)
 
 julia> ts_monthly = apply(ts, Week, Statistics.std) # weekly standard deviation;
@@ -928,7 +930,7 @@ julia> pctchange(ts)
    8 │ 2017-01-08       -0.911039
    9 │ 2017-01-09        4.15295
   10 │ 2017-01-10       -0.594733
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 1)
 
 # Pctchange over the third row
@@ -947,7 +949,7 @@ julia> pctchange(ts, 3)
    8 │ 2017-01-08       -0.83357
    9 │ 2017-01-09       -0.59454
   10 │ 2017-01-10       -0.814221
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 1)
 ```
 """
@@ -1038,7 +1040,7 @@ julia> ts |> print
   11 │ 2022-12-01     11
   12 │ 2023-01-01     12
 
-Index: {Dates.Date} [12]
+Index: {Date} [12]
 Size: (12, 1)
 
 julia> # rollapply(sum, ts, :x1, 10); 
@@ -1078,7 +1080,7 @@ This method uses the Plots package to implement this funcitonality.
 
 # Example
 ```jldoctest
-julia> using TSx, DataFrames, Dates; 
+julia> using TSx, Dates; 
 
 julia> df = DataFrame(Ind = Date("2022-02-01"):Month(1):Date("2022-02-01")+Month(11), val1 = abs.(rand(Int16, 12)), val2 = abs.(rand(Int16, 12)));
 
@@ -1260,7 +1262,7 @@ to be added in the last position in the resulting data frame that will identify 
 # Example
     
 ```jldoctest
-julia> using TSx, DataFrames, Dates, Random;
+julia> using TSx, Dates, Random;
 
 julia> random(x) = rand(MersenneTwister(123), x); 
 
@@ -1293,7 +1295,7 @@ julia> TS(random(length(dates1)), dates1) |> print
    9 │ 2017-01-09  0.26864
   10 │ 2017-01-10  0.108871
 
-Index: {Dates.Date} [10]
+Index: {Date} [10]
 Size: (10, 1)
 
 julia> dates2 = collect(Date(2017,1,11):Day(1):Date(2017,1,30)); 
@@ -1324,7 +1326,7 @@ julia> TS(random(length(dates2)), dates2) |> print
   19 │ 2017-01-29  0.582318
   20 │ 2017-01-30  0.255981
 
-Index: {Dates.Date} [20]
+Index: {Date} [20]
 Size: (20, 1)
 
 julia> ts1 = TS(randn(length(dates1)), dates1); 
