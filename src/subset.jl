@@ -138,7 +138,7 @@ julia> subset(ts,Date("2022-9-27"),:)
 ```
 
 """
-function subset(ts::TS, from::T, to::T) where {T<:Union{Int, TimeType}}
+function subset(ts::TS, from::T, to::T) where {T<:Union{Int,TimeType}}
     TS(DataFrames.subset(ts.coredata, :Index => x -> x .>= from .&& x .<= to))
 end
 
