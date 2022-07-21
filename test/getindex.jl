@@ -1,8 +1,273 @@
 ts = TS(df_timetype_index)
+ts_long = TS(df_timetype_index_long_columns)
 
 function test_types(obj::TS)
     @test typeof(obj.coredata) == DataFrame
 end
+
+### Row, Column Scalar
+
+# getindex(ts, i::Int, j::Int)
+i = 1; j = 1
+t = ts[i, j]
+@test typeof(t) == eltype(df_timetype_index[:, j+1])
+@test t == df_timetype_index[i, j+1]
+
+# getindex(ts::TS, i::Int, j::Symbol)
+i = 1; j = :data
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, j])
+@test t == df_timetype_index[i, j]
+
+# getindex(ts::TS, i::Int, j::String)
+i = 1; j = "data"
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, j])
+@test t == df_timetype_index[i, j]
+
+# getindex(ts::TS, dt::T, j::Int) where {T<:TimeType}
+dt = ts.coredata[:, :Index][1]; j = 1;
+t = ts[dt ,j]
+@test typeof(t) == typeof(df_timetype_index[1, j+1])
+@test t == df_timetype_index[1, j+1]
+
+# getindex(ts::TS, dt::T, j::Symbol) where {T<:TimeType}
+dt = ts.coredata[:, :Index][1]; j = :data;
+t = ts[dt,j]
+@test typeof(t) == typeof(df_timetype_index[1, j])
+@test t == df_timetype_index[1, j]
+
+# getindex(ts::TS, dt::T, j::String) where {T<:TimeType}
+dt = ts.coredata[:, :Index][1]; j = "data";
+t = ts[dt,j]
+@test typeof(t) == typeof(df_timetype_index[1, j])
+@test t == df_timetype_index[1, j]
+
+### Row Scalar, Column Vector
+
+# getindex(ts::TS, i::Int, j::AbstractVector{Int})
+i = 1; n = 10; j = collect(1:n)
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 1; n = 1; j = collect(1:n)
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 1; n = 100; j = collect(1:n)
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 1; n = 100; j = [1,100]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, [1,2,101]])
+
+# getindex(ts::TS, i::Int, j::AbstractVector{T}) where {T<:Union{String, Symbol}}
+i = 1; n = 10; j = ["data$x" for x in 1:n]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+i = 1; n = 1; j = ["data$x" for x in 1:n]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+i = 1; n = 100; j = ["data$x" for x in 1:n]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+i = 1; n = 100; j = ["data1", "data100"]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+# getindex(ts::TS, dt::T, j::AbstractVector{Int}) where {T<:TimeType}
+i = 1; dt = ts.coredata[:, :Index][i]; n = 10; j = collect(1:n)
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 10; dt = ts.coredata[:, :Index][i]; n = 1; j = collect(1:n)
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 100; dt = ts.coredata[:, :Index][i]; n = 100; j = collect(1:n)
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 100; dt = ts.coredata[:, :Index][i]; n = 100; j = [1,100]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, [1,2,101]])
+
+# getindex(ts::TS, dt::D, j::AbstractVector{T}) where {D<:TimeType, T<:Union{String, Symbol}}
+i = 1; dt = ts.coredata[:, :Index][i]; n = 10; j = ["data$x" for x in 1:n]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+i = 10; dt = ts.coredata[:, :Index][i]; n = 1; j = ["data$x" for x in 1:n]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+i = 100; dt = ts.coredata[:, :Index][i]; n = 100; j = ["data$x" for x in 1:n]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+i = 100; dt = ts.coredata[:, :Index][i]; n = 100; j = ["data1", "data100"]
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, Cols(:Index, j)])
+
+
+# Row Scalar, Column Unitrange
+
+# getindex(ts::TS, i::Int, j::UnitRange)
+i = 1; n = 10; j = 1:n
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 1; n = 1; j = 1:n
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+i = 1; n = 100; j = 1:n
+t = ts_long[i, j]
+test_types(t)
+@test t.coredata == DataFrame(df_timetype_index_long_columns[i, collect(1:n+1)])
+
+
+# Row Vector, Column Scalar
+
+# getindex(ts::TS, i::AbstractVector{Int}, j::Int)
+n = 10; i = collect(1:n); j = 1
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, j+1])
+@test t == df_timetype_index[i, j+1]
+
+n = 1; i = collect(1:n); j = 1
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, j+1])
+@test t == df_timetype_index[i, j+1]
+
+n = 400; i = collect(1:n); j = 1
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, j+1])
+@test t == df_timetype_index[i, j+1]
+
+i = [1, 400];j = 1
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, j+1])
+@test t == df_timetype_index[i, j+1]
+
+# getindex(ts::TS, i::AbstractVector{Int}, j::Symbol)
+n = 10; i = collect(1:n); j = :data
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, :data])
+@test t == df_timetype_index[i, :data]
+
+n = 1; i = collect(1:n); j = :data
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, :data])
+@test t == df_timetype_index[i, :data]
+
+n = 400; i = collect(1:n); j = :data
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, :data])
+@test t == df_timetype_index[i, :data]
+
+i = [1, 400];j = :data
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, :data])
+@test t == df_timetype_index[i, :data]
+
+# getindex(ts::TS, i::AbstractVector{Int}, j::String)
+n = 10; i = collect(1:n); j = "data"
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, "data"])
+@test t == df_timetype_index[i, "data"]
+
+n = 1; i = collect(1:n); j = "data"
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, "data"])
+@test t == df_timetype_index[i, "data"]
+
+n = 400; i = collect(1:n); j = "data"
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, "data"])
+@test t == df_timetype_index[i, "data"]
+
+i = [1, 400];j = "data"
+t = ts[i, j]
+@test typeof(t) == typeof(df_timetype_index[i, "data"])
+@test t == df_timetype_index[i, "data"]
+
+# getindex(ts::TS, dt::AbstractVector{T}, j::Int) where {T<:TimeType}
+
+# getindex(ts::TS, dt::AbstractVector{T}, j::Union{String, Symbol}) where {T<:TimeType}
+
+# Row Vector, Column Vector
+
+# getindex(ts::TS, i::AbstractVector{Int}, j::AbstractVector{Int})
+n = 10; m = 10; i = collect(1:n); j = collect(1:m)
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, collect(1:m+1)])
+@test t.coredata == df_timetype_index_long_columns[i, collect(1:m+1)]
+
+n = 1; m = 1; i = collect(1:n); j = collect(1:m)
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, collect(1:m+1)])
+@test t.coredata == df_timetype_index_long_columns[i, collect(1:m+1)]
+
+n = 400; m = 100; i = collect(1:n); j = collect(1:m)
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, collect(1:m+1)])
+@test t.coredata == df_timetype_index_long_columns[i, collect(1:m+1)]
+
+i = [2*x for x in 1:50]; j = [2*x for x in 1:50]
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, [(2*x+1) for x in 0:50]])
+@test t.coredata == df_timetype_index_long_columns[i, [(2*x+1) for x in 0:50]]
+
+# getindex(ts::TS, i::AbstractVector{Int}, j::AbstractVector{T}) where {T<:Union{String, Symbol}}
+n = 10; m = 10; i = collect(1:n); j = insert!(["data$x" for x in 1:m], 1, "Index")
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, j])
+@test t.coredata == df_timetype_index_long_columns[i, j]
+
+n = 1; m = 1; i = collect(1:n); j = insert!(["data$x" for x in 1:m], 1, "Index")
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, j])
+@test t.coredata == df_timetype_index_long_columns[i, j]
+
+n = 400; m = 100; i = collect(1:n); j = insert!(["data$x" for x in 1:m], 1, "Index")
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, j])
+@test t.coredata == df_timetype_index_long_columns[i, j]
+
+i = [2*x for x in 1:50]; j = insert!(["data$x" for x in [2*y for y in 1:50]], 1, "Index")
+t = ts_long[i, j]
+@test typeof(t.coredata) == typeof(df_timetype_index_long_columns[i, j])
+@test t.coredata == df_timetype_index_long_columns[i, j]
+
+
+
+
+
+
+# Row Indexing
 
 # getindex(ts, i::Int)
 ind = 1
@@ -41,21 +306,12 @@ d = Date(2007, 10, 1)
 test_types(ts[ind])
 @test TSx.index(ts[ind]) == [d]
 
-# getindex(ts, i::Int, j::Int)
-i = 1; j = 1
-t = ts[i, j]
-test_types(t)
-@test t.coredata[!, :Index] == [df_timetype_index[i, 1]]
-@test t.coredata[!, :data] == [df_timetype_index[i, j+1]]
-
 # getindex(ts, i::UnitRange, j::Int)
 i = 1:10; j = 1
 t = ts[i, j]
-test_types(t)
-@test DataFrames.nrow(t.coredata) == length(i)
-@test DataFrames.ncol(t.coredata) == length(j)+1 # Index + Ncols
-@test t.coredata[!, :Index] == df_timetype_index[i, :Index]
-@test t.coredata[!, :data] == df_timetype_index[i, :data]
+@test typeof(t) == typeof(df_timetype_index[i, j+1])
+@test length(t) == length(i)
+@test t == df_timetype_index[i, :data]
 
 # getindex(ts::TS, i::Int, j::UnitRange)
 i = 2; j = 1:1
@@ -64,31 +320,19 @@ test_types(t)
 @test DataFrames.nrow(t.coredata) == length(i)
 @test DataFrames.ncol(t.coredata) == length(j)+1
 @test t.coredata[!, :Index] == [df_timetype_index[i, :Index]]
-@test t.coredata[!, :data] == df_timetype_index[[i], j]
-
-# getindex(ts::TS, i::Int, j::Symbol)
-i = 1; j = :data
-t = ts[i, j]
-test_types(t)
-@test t.coredata[!, j] == df_timetype_index[i, j]
+@test t.coredata[!, :data] == [df_timetype_index[i, :data]]
 
 # getindex(ts::TS, i::UnitRange, j::Symbol)
 i = 1:10; j = :data
 t = ts[i, j]
-test_types(t)
-@test t.coredata[!, j] == df_timetype_index[i, j]
-
-# getindex(ts::TS, i::Int, j::String)
-i = 1; j = "data"
-t = ts[i, j]
-test_types(t)
-@test t.coredata[!, j] == df_timetype_index[i, j]
+@test typeof(t) == typeof(df_timetype_index[i,j])
+@test t == df_timetype_index[i, j]
 
 # getindex(ts::TS, i::UnitRange, j::String)
 i = 1:10; j = "data"
 t = ts[i, j]
-test_types(t)
-@test t.coredata[!, j] == df_timetype_index[i, j]
+@test typeof(t) == typeof(df_timetype_index[i,j])
+@test t == df_timetype_index[i, j]
 
 # getindex(ts::TS, r::StepRange{T, V}) where {T<:TimeType, V<:Period}
 ind = Date(2007, 1, 1):Day(1):Date(2007, 2, 1)
